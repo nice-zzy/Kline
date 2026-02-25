@@ -1,0 +1,9 @@
+{
+    "mcpServers": {
+      "chrome-browser": {
+        "type": "streamable-http",
+        "url": "http://localhost:12306/mcp"
+      }
+    }
+  }
+  

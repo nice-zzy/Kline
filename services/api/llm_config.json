@@ -1,0 +1,6 @@
+{
+  "base_url": "https://yunwu.ai/v1",
+  "api_key": "sk-oXldMXHwE5UbZ0LvrwMAm5sHpqH31ML4m26STaGM43sWi79b",
+  "model": "gpt-4o-mini",
+  "timeout": 300
+}

@@ -1,0 +1,259 @@
+{
+  "fetched_at": "2025-10-16T10:57:42.178458",
+  "source": "Alpha Vantage API",
+  "symbols": [
+    "AAPL",
+    "MSFT",
+    "UNH",
+    "GS",
+    "HD",
+    "CAT",
+    "AMGN",
+    "CRM",
+    "MCD",
+    "V",
+    "BA",
+    "ABBV",
+    "CVX",
+    "AXP",
+    "WMT",
+    "JNJ",
+    "PG",
+    "JPM",
+    "IBM",
+    "NKE",
+    "TRV",
+    "VZ",
+    "KO",
+    "DOW",
+    "DIS"
+  ],
+  "total_symbols": 25,
+  "symbol_details": {
+    "AAPL": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 12.72,
+        "max": 705.07
+      }
+    },
+    "MSFT": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 14.87,
+        "max": 555.45
+      }
+    },
+    "UNH": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 14.51,
+        "max": 630.73
+      }
+    },
+    "GS": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 47.41,
+        "max": 825.25
+      }
+    },
+    "HD": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 17.05,
+        "max": 439.37
+      }
+    },
+    "CAT": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 21.71,
+        "max": 538.449
+      }
+    },
+    "AMGN": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 30.57,
+        "max": 346.85
+      }
+    },
+    "CRM": {
+      "records": 5364,
+      "start_date": "2004-06-23T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 9.0,
+        "max": 369.0
+      }
+    },
+    "MCD": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 12.12,
+        "max": 326.32
+      }
+    },
+    "V": {
+      "records": 4423,
+      "start_date": "2008-03-19T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 41.78,
+        "max": 375.51
+      }
+    },
+    "BA": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 24.73,
+        "max": 446.01
+      }
+    },
+    "ABBV": {
+      "records": 3217,
+      "start_date": "2013-01-02T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 33.33,
+        "max": 244.81
+      }
+    },
+    "CVX": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 49.81,
+        "max": 189.68
+      }
+    },
+    "AXP": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 9.71,
+        "max": 349.19
+      }
+    },
+    "WMT": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 41.44,
+        "max": 181.35
+      }
+    },
+    "JNJ": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 41.02,
+        "max": 194.4
+      }
+    },
+    "PG": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 43.93,
+        "max": 180.43
+      }
+    },
+    "JPM": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 14.96,
+        "max": 318.01
+      }
+    },
+    "IBM": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 54.01,
+        "max": 301.0425
+      }
+    },
+    "NKE": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 25.81,
+        "max": 179.1
+      }
+    },
+    "TRV": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 21.31,
+        "max": 287.95
+      }
+    },
+    "VZ": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 23.07,
+        "max": 67.25
+      }
+    },
+    "KO": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 35.58,
+        "max": 81.33
+      }
+    },
+    "DOW": {
+      "records": 1654,
+      "start_date": "2019-03-20T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 20.4019,
+        "max": 71.86
+      }
+    },
+    "DIS": {
+      "records": 6529,
+      "start_date": "1999-11-01T00:00:00",
+      "end_date": "2025-10-15T00:00:00",
+      "price_range": {
+        "min": 13.48,
+        "max": 203.02
+      }
+    }
+  }
+}

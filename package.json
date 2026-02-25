@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "name": "kline-similarity-monorepo",
+  "version": "0.1.0",
+  "scripts": {
+    "dev:web": "pnpm --filter ./apps/web dev",
+    "dev:api": "pnpm --filter ./services/api dev",
+    "build": "pnpm --filter ./apps/web build",
+    "dev": "concurrently --names web,api \"pnpm dev:web\" \"pnpm dev:api\"",
+    "package": "node scripts/package.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
