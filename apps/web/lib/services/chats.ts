@@ -70,7 +70,7 @@ export class ChatService {
   }
 
   /** 新建：先上传空消息文件再写表，失败则删 Storage（与 portfoliopilot createLog/saveStrategy 一致） */
-  async createChat(userId: string, title: string = "新对话"): Promise<Chat> {
+  async createChat(userId: string, title: string = "New chat"): Promise<Chat> {
     const chatId = crypto.randomUUID();
     const uploadResult = await this.storage.uploadJson(userId, BUCKET_FOLDER, chatId, { messages: [] });
 

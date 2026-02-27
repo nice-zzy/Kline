@@ -1,7 +1,7 @@
 """
-K线分析 API：HTTP 路由层。
-- 推理逻辑在 inference 模块；本文件只负责接收请求、调用 inference、返回响应。
-- 接收上传的 K 线图 → inference.run_inference → 规则化报告（全文 + 分块 + 相似案例列表）。
+K-line analysis API: HTTP routing layer.
+- Inference logic lives in the inference module; this file only receives requests, calls inference, and returns responses.
+- Receives uploaded candlestick images → inference.run_inference → structured report (full text + sections + similar cases).
 """
 import sys
 import json
@@ -89,9 +89,9 @@ async def analyze_image(
     history: str = Form("[]"),
 ):
     """
-    分析入口：支持「仅图片」「仅文字」「图片+文字」，以及多轮对话。
-    - 仅图片：默认对该 K 线图做形态分析与未来走向预测；报告为图文（含检索到的相似 K 线图，注明股票与日期）。
-    - 有文字：理解语义并针对性回复；支持多轮对话（通过 history 传入此前轮次）。
+    Analysis entrypoint: supports "image only", "text only", or "image + text", as well as multi-turn conversation.
+    - Image only: analyze the uploaded candlestick chart and predict future movement; report includes similar historical charts with symbol and dates.
+    - With text: understand the user's question and reply accordingly; supports multi-turn via the `history` field.
     """
     image_bytes: Optional[bytes] = None
     user_message: str = (message or "").strip()
@@ -109,8 +109,8 @@ async def analyze_image(
     if not image_bytes and not user_message.strip():
         return AnalyzeResponse(
             success=False,
-            message="请上传 K 线图或输入文字诉求（至少其一）",
-            text="请上传 K 线图或输入文字诉求（至少其一）",
+            message="Please upload a candlestick chart or enter a text request (at least one is required).",
+            text="Please upload a candlestick chart or enter a text request (at least one is required).",
             report=None,
             similar_cases=None,
             error_code="MISSING_INPUT",

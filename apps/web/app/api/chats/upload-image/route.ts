@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const { url: path } = await storage.uploadFile(user.id, fileId, file, contentType);
     const signedUrl = await storage.getSignedUrl(path, 31536000);
     if (!signedUrl) {
-      return NextResponse.json({ error: "生成访问链接失败" }, { status: 500 });
+      return NextResponse.json({ error: "Failed to generate access URL" }, { status: 500 });
     }
     return NextResponse.json({ url: signedUrl });
   } catch (err) {

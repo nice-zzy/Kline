@@ -50,8 +50,8 @@ export function ChatSidebar({
                   type="button"
                   className="btnCollapse"
                   onClick={onToggleSidebar}
-                  aria-label="收起侧栏"
-                  title="收起"
+                  aria-label="Collapse sidebar"
+                  title="Collapse"
                 >
                   ◀
                 </button>
@@ -60,10 +60,10 @@ export function ChatSidebar({
                 type="button"
                 className="btnNew"
                 onClick={onNewChat}
-                aria-label="新建对话"
+                aria-label="New chat"
               >
                 <span className="btnNewIcon">+</span>
-                新建对话
+                New chat
               </button>
             </>
           )}
@@ -72,8 +72,8 @@ export function ChatSidebar({
               type="button"
               className="btnExpand"
               onClick={onToggleSidebar}
-              aria-label="展开侧栏"
-              title="展开"
+              aria-label="Expand sidebar"
+              title="Expand"
             >
               ▶
             </button>
@@ -82,10 +82,10 @@ export function ChatSidebar({
         {!sidebarCollapsed && (
           <>
             <div className="historySection">
-              <h2 className="historyTitle">历史记录</h2>
+              <h2 className="historyTitle">History</h2>
               {historyList.length === 0 ? (
                 <p className="historyEmpty">
-                  暂无历史记录，发送一条消息开始分析
+                  No history yet. Send a message to start an analysis.
                 </p>
               ) : (
                 <ul className="historyList">
@@ -102,8 +102,8 @@ export function ChatSidebar({
                         type="button"
                         className="historyItemDelete"
                         onClick={(e) => onDeleteChat(e, c.id)}
-                        aria-label={`删除对话：${c.title}`}
-                        title="删除此对话"
+                        aria-label={`Delete chat: ${c.title}`}
+                        title="Delete this chat"
                       >
                         ×
                       </button>
@@ -125,14 +125,14 @@ export function ChatSidebar({
                     type="button"
                     className="btnSignOut"
                     onClick={() => signOut()}
-                    aria-label="退出登录"
+                    aria-label="Sign out"
                   >
-                    退出
+                    Sign out
                   </button>
                 </>
               ) : (
                 <Link href="/auth/login" className="sidebarLoginLink">
-                  登录
+                  Log in
                 </Link>
               )}
             </div>

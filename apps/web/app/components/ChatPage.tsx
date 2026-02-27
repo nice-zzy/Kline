@@ -357,19 +357,19 @@ export default function ChatPage() {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: "新对话" }),
+        body: JSON.stringify({ title: "New chat" }),
       });
       if (!res.ok) {
         if (res.status === 401) {
           await signOut();
-          setError("登录已过期，请重新登录");
+          setError("Session expired. Please sign in again.");
         } else {
           const msg = await res.json().catch(() => ({}));
           const detail = (msg as { error?: string })?.error ?? `HTTP ${res.status}`;
-          setError(`创建对话失败：${detail}`);
+          setError(`Failed to create chat: ${detail}`);
         }
         throw new Error(
-          res.status === 401 ? "登录已过期，请重新登录" : "创建对话失败"
+          res.status === 401 ? "Session expired. Please sign in again." : "Failed to create chat."
         );
       }
       const chat = (await res.json()) as Chat;
@@ -389,7 +389,7 @@ export default function ChatPage() {
     const id = genId();
     setChats((prev) => ({
       ...prev,
-      [id]: { id, title: "新对话", messages: [], createdAt: Date.now() },
+      [id]: { id, title: "New chat", messages: [], createdAt: Date.now() },
     }));
     setCurrentChatId(id);
     return id;
@@ -442,8 +442,8 @@ export default function ChatPage() {
       const currentMessages = chatsRef.current[chatId]?.messages ?? [];
       const newTitle =
         currentMessages.length === 0
-          ? formatChatTitle(`已上传 K 线图：${file.name}`, true)
-          : (chatsRef.current[chatId]?.title ?? "新对话");
+          ? formatChatTitle(`Uploaded K-line chart: ${file.name}`, true)
+          : (chatsRef.current[chatId]?.title ?? "New chat");
 
       let imageUrl: string | undefined;
       if (user) {
@@ -465,8 +465,8 @@ export default function ChatPage() {
       }
       const userContent =
         extraMessage?.trim() ?
-          `已上传 K 线图：${file.name}\n${extraMessage.trim()}`
-        : `已上传 K 线图：${file.name}`;
+          `Uploaded K-line chart: ${file.name}\n${extraMessage.trim()}`
+        : `Uploaded K-line chart: ${file.name}`;
       const userMsg: Message = {
         id: genId(),
         role: "user",
@@ -475,6 +475,12 @@ export default function ChatPage() {
         ...(imageUrl && { imageUrl }),
       };
       addMessage(chatId, userMsg);
+      const retrievingMsg: Message = {
+        id: genId(),
+        role: "assistant",
+        content: "Retrieving similar historical K-lines…",
+      };
+      addMessage(chatId, retrievingMsg);
       setLoading(true);
       setError(null);
       setUploadFileName(null);
@@ -494,43 +500,81 @@ export default function ChatPage() {
           method: "POST",
           body: formData,
         });
-        if (!resp.ok) throw new Error(`请求失败: ${resp.status}`);
+        if (!resp.ok) throw new Error(`Request failed: ${resp.status}`);
         const data = await resp.json();
-        const text = data?.text ?? "未返回分析内容。";
+        const text = data?.text ?? "No analysis content returned.";
         const ok = data?.success !== false;
-        const assistantMsg: Message = {
+        const similarCases =
+          (data?.similar_cases?.length && data.similar_cases) ||
+          (data?.report?.similar_cases?.length && data.report.similar_cases) ||
+          [];
+
+        const newMessages: Message[] = [...currentMessages, userMsg, retrievingMsg];
+
+        if (similarCases.length) {
+          const similarLines = similarCases.map((c, idx) => {
+            const parts: string[] = [];
+            if (c.symbol) parts.push(c.symbol);
+            if (c.start_date || c.end_date) {
+              const range = `${c.start_date || ""} ~ ${c.end_date || ""}`.trim();
+              if (range) parts.push(range);
+            }
+            if (typeof c.similarity === "number") {
+              parts.push(`similarity ${(c.similarity * 100).toFixed(2)}%`);
+            }
+            const lineBody = parts.join(" | ");
+            return `${idx + 1}. ${lineBody}`;
+          });
+          const similarText =
+            similarLines.length > 0 ? `\n\n${similarLines.join("\n")}` : "";
+
+          const similarMsg: Message = {
+            id: genId(),
+            role: "assistant",
+            content:
+              "Found the following similar historical K-lines (current window + next two, for reference):" +
+              similarText,
+            report: { similar_cases: similarCases },
+          };
+          addMessage(chatId, similarMsg);
+          newMessages.push(similarMsg);
+        }
+
+        const thinkingMsg: Message = {
+          id: genId(),
+          role: "assistant",
+          content: "Generating analysis…",
+        };
+        addMessage(chatId, thinkingMsg);
+        newMessages.push(thinkingMsg);
+
+        const analysisMsg: Message = {
           id: genId(),
           role: "assistant",
           content: text,
-          report:
-            (data?.similar_cases?.length && {
-              similar_cases: data.similar_cases,
-            }) ||
-            (data?.report?.similar_cases?.length && {
-              similar_cases: data.report.similar_cases,
-            }) ||
-            undefined,
         };
-        addMessage(chatId, assistantMsg);
+        addMessage(chatId, analysisMsg);
+        newMessages.push(analysisMsg);
+
         if (ok) setSuccessBanner(true);
-        else setError(data?.message ?? "分析失败");
+        else setError(data?.message ?? "Analysis failed.");
         syncChatToServer(
           chatId,
-          [...currentMessages, userMsg, assistantMsg],
+          newMessages,
           newTitle
         );
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : "请求错误";
+        const msg = err instanceof Error ? err.message : "Request error";
         setError(msg);
         const assistantMsg: Message = {
           id: genId(),
           role: "assistant",
-          content: `分析失败：${msg}`,
+          content: `Analysis failed: ${msg}`,
         };
         addMessage(chatId, assistantMsg);
         syncChatToServer(
           chatId,
-          [...currentMessages, userMsg, assistantMsg],
+          [...currentMessages, userMsg, retrievingMsg, assistantMsg],
           newTitle
         );
       } finally {
@@ -547,7 +591,7 @@ export default function ChatPage() {
       const newTitle =
         currentMessages.length === 0
           ? formatChatTitle(message.slice(0, 30), false)
-          : (chatsRef.current[chatId]?.title ?? "新对话");
+          : (chatsRef.current[chatId]?.title ?? "New chat");
 
       const userMsg: Message = {
         id: genId(),
@@ -570,9 +614,9 @@ export default function ChatPage() {
           method: "POST",
           body: formData,
         });
-        if (!resp.ok) throw new Error(`请求失败: ${resp.status}`);
+        if (!resp.ok) throw new Error(`Request failed: ${resp.status}`);
         const data = await resp.json();
-        const text = data?.text ?? "未返回分析内容。";
+        const text = data?.text ?? "No analysis content returned.";
         const ok = data?.success !== false;
         const assistantMsg: Message = {
           id: genId(),
@@ -589,19 +633,19 @@ export default function ChatPage() {
         };
         addMessage(chatId, assistantMsg);
         if (ok) setSuccessBanner(true);
-        else setError(data?.message ?? "分析失败");
+        else setError(data?.message ?? "Analysis failed.");
         syncChatToServer(
           chatId,
           [...currentMessages, userMsg, assistantMsg],
           newTitle
         );
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : "请求错误";
+        const msg = err instanceof Error ? err.message : "Request error";
         setError(msg);
         const assistantMsg: Message = {
           id: genId(),
           role: "assistant",
-          content: `分析失败：${msg}`,
+          content: `Analysis failed: ${msg}`,
         };
         addMessage(chatId, assistantMsg);
         syncChatToServer(
@@ -628,7 +672,7 @@ export default function ChatPage() {
           canvas.toBlob((b) => resolve(b), "image/png")
         );
         if (!blob) {
-          setError("OHLC 转图片失败");
+          setError("Failed to convert OHLC data to image.");
           return;
         }
         const file = new File([blob], "ohlc.png", { type: "image/png" });
@@ -651,7 +695,7 @@ export default function ChatPage() {
         return;
       }
 
-      setError("请输入诉求、OHLC 数据或上传 K 线图");
+      setError("Please enter a question, OHLC data, or upload a K-line chart.");
     },
     [inputText, sendFile, sendMessageOnly]
   );
@@ -665,12 +709,12 @@ export default function ChatPage() {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: "新对话" }),
+          body: JSON.stringify({ title: "New chat" }),
         });
         if (!res.ok) {
           const msg = await res.json().catch(() => ({}));
           const detail = (msg as { error?: string })?.error ?? `HTTP ${res.status}`;
-          setError(`创建对话失败：${detail}`);
+          setError(`Failed to create chat: ${detail}`);
           return;
         }
         const chat = (await res.json()) as Chat;
@@ -679,14 +723,14 @@ export default function ChatPage() {
         setCurrentChatId(chat.id);
         loadedChatIdsRef.current.add(chat.id);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "创建对话失败");
+        setError(err instanceof Error ? err.message : "Failed to create chat.");
       }
       return;
     }
     const id = genId();
     setChats((prev) => ({
       ...prev,
-      [id]: { id, title: "新对话", messages: [], createdAt: Date.now() },
+      [id]: { id, title: "New chat", messages: [], createdAt: Date.now() },
     }));
     setCurrentChatId(id);
   }, [user]);

@@ -246,7 +246,7 @@ def run_inference_with_llm(
         is_configured = lambda: False
 
     if not is_configured():
-        # 回退：用模板报告（与 run_inference 一致）
+        # Fallback: use template report (same as run_inference)
         report = build_report_structured(
             has_retrieval=len(similar_cases) > 0,
             similar_cases=similar_cases or None,
@@ -255,20 +255,28 @@ def run_inference_with_llm(
         )
         return {
             "success": True,
-            "message": "分析完成（未配置大模型，已使用模板报告）",
+            "message": "Analysis completed (LLM not configured, used template report).",
             "report": report,
             "embedding": embedding_list,
             "error_code": None,
         }
 
-    # 构建给 LLM 的上下文：支持多模态（用户 K 线图 + 每个相似案例的当前/后续1/后续2 三张图）
+    # Build context for the LLM: support multimodal (user candlestick + three images per similar case)
     system_prompt = (
-        "你是一位专业的 K 线形态与股票分析助手。用户会提供一张 K 线图，以及若干相似历史案例（每个案例含 3 张图：当前窗口、后续第 1 窗口、后续第 2 窗口）。"
-        "请结合这些图片做类比分析，预测用户 K 线图的未来走向。报告需包含：1）当前形态简要判断；2）与相似历史案例的对比；"
-        "3）基于历史相似形态的后续走势参考与未来走向预测（仅供参考）；4）关键价位或操作建议（若有）；5）风险提示。"
-        "用中文撰写，条理清晰，避免绝对化结论，并注明不构成投资建议。若为多轮对话，请结合上文语境连贯回复。"
-        "【重要】请使用 Markdown 格式输出：使用 ## 作为小标题、- 或 1. 作为列表、**粗体** 强调关键信息，以便前端正确展示。"
-        "【格式要求】布局紧凑：段落之间最多空一行，禁止连续两个及以上空行；小标题与正文之间不空行；相似案例之间不空行。"
+        "You are a professional candlestick pattern and stock analysis assistant. "
+        "The user will provide one candlestick chart, plus several similar historical cases "
+        "(each case contains 3 images: current window, next window 1, next window 2). "
+        "Use these images to perform an analogy-based analysis and predict the future movement of the user's chart. "
+        "The report must include: 1) a brief assessment of the current pattern; "
+        "2) comparison with similar historical cases; "
+        "3) reference for subsequent price movement and future outlook based on those historical patterns (for reference only); "
+        "4) key price levels or trading suggestions (if any); "
+        "5) risk warnings. "
+        "Write in English, be well-structured, avoid absolute statements, and clearly state that this is not investment advice. "
+        "For multi-turn dialogue, consider the conversation history and reply coherently. "
+        "[Important] Output in Markdown: use ## for section headings, - or 1. for lists, and **bold** for key points so that the frontend can render it properly. "
+        "[Formatting] Layout should be compact: at most one blank line between paragraphs; no multiple consecutive blank lines; "
+        "no blank lines between similar cases."
     )
 
     # 是否有图可发（用户图或相似案例图）：有则用 vision 多模态，无则用纯文本
@@ -283,14 +291,22 @@ def run_inference_with_llm(
         if image_bytes:
             content_parts.append({
                 "type": "text",
-                "text": "用户上传的 K 线图如下。请结合下方检索到的相似历史案例（每个案例 3 张图：当前窗口、后续第 1 窗口、后续第 2 窗口）做类比分析，预测该图的未来走向。",
+                "text": (
+                    "The user-uploaded candlestick chart is shown below. "
+                    "Please analyze it together with the retrieved similar historical cases "
+                    "(each case has 3 images: current window, next window 1, next window 2) "
+                    "and predict the future movement."
+                ),
             })
             buf = io.BytesIO()
             Image.open(io.BytesIO(image_bytes)).convert("RGB").save(buf, format="PNG")
             data_url = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode("ascii")
             content_parts.append({"type": "image_url", "image_url": {"url": data_url}})
         elif similar_cases:
-            content_parts.append({"type": "text", "text": "用户未上传图，请根据下方相似历史案例的 K 线图做类比与未来走向参考。\n"})
+            content_parts.append({
+                "type": "text",
+                "text": "The user did not upload a chart. Please use the similar historical candlestick charts below as reference for future movement.\n",
+            })
 
         if similar_cases:
             for k, meta in enumerate(similar_cases[:5], 1):
@@ -300,7 +316,10 @@ def run_inference_with_llm(
                 ed = meta.get("end_date", "")
                 content_parts.append({
                     "type": "text",
-                    "text": f"相似案例{k}：{sym} {sd}～{ed} 相似度{sim:.2%}。下图依次为：当前窗口、后续第1窗口、后续第2窗口。",
+                    "text": (
+                        f"Similar case {k}: {sym} {sd}–{ed}, similarity {sim:.2%}. "
+                        "The following three images are: current window, next window 1, next window 2."
+                    ),
                 })
                 wi = meta.get("window_index", -1)
                 if wi >= 0:
@@ -313,23 +332,30 @@ def run_inference_with_llm(
                             content_parts.append({"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}})
 
         if user_message.strip():
-            content_parts.append({"type": "text", "text": "用户补充诉求或问题：\n" + user_message.strip()})
+            content_parts.append({"type": "text", "text": "User's additional requirements or questions:\n" + user_message.strip()})
         if not content_parts:
-            content_parts.append({"type": "text", "text": "未配置检索库或未找到相似历史窗口。"})
+            content_parts.append({"type": "text", "text": "No retrieval index is configured or no similar historical window was found."})
 
         user_content: Any = content_parts
     else:
         context_parts = []
         if image_bytes and not user_message.strip():
-            context_parts.append("用户仅上传了一张 K 线图，未附加文字。请默认对该 K 线图做形态分析与未来走向预测。")
+            context_parts.append(
+                "The user uploaded only one candlestick chart without any text. "
+                "Please analyze the pattern and predict the future movement by default."
+            )
         elif image_bytes:
-            context_parts.append("用户上传了一张 K 线图，请理解其语义并针对性回复。")
+            context_parts.append(
+                "The user uploaded a candlestick chart. Please understand its meaning and respond accordingly."
+            )
         if similar_cases:
-            context_parts.append("检索到的相似历史窗口（文本）：\n" + _similar_cases_to_llm_text(similar_cases, similarities))
+            context_parts.append(
+                "Retrieved similar historical windows (text only):\n" + _similar_cases_to_llm_text(similar_cases, similarities)
+            )
         else:
-            context_parts.append("未配置检索库或未找到相似历史窗口。")
+            context_parts.append("No retrieval index is configured or no similar historical window was found.")
         if user_message.strip():
-            context_parts.append("用户诉求或问题：\n" + user_message.strip())
+            context_parts.append("User question or requirements:\n" + user_message.strip())
         user_content = "\n\n".join(context_parts)
 
     messages_for_llm: List[Dict[str, Any]] = [{"role": "system", "content": system_prompt}]
@@ -348,7 +374,7 @@ def run_inference_with_llm(
     except Exception as e:
         return {
             "success": False,
-            "message": f"大模型调用失败: {e}",
+            "message": f"LLM call failed: {e}",
             "report": None,
             "embedding": embedding_list,
             "error_code": "LLM_ERROR",
@@ -382,17 +408,15 @@ def run_inference_with_llm(
         similar_rows.append(row)
 
     llm_text_clean = _collapse_newlines(llm_text or "")
-    first_line = (llm_text_clean.split("\n")[0] if llm_text_clean else "").strip() or "见下方全文。"
+    first_line = (llm_text_clean.split("\n")[0] if llm_text_clean else "").strip() or "See full report below."
     sections: Dict[str, str] = {
         SECTION_KEY_MORPHOLOGY: first_line,
         SECTION_KEY_SIMILAR: sec_similar,
-        SECTION_KEY_ADVICE: "请参考上述大模型分析中的建议与风险提示。",
-        SECTION_KEY_RISK: "历史形态相似不代表未来重复，不构成投资建议。",
+        SECTION_KEY_ADVICE: "Please refer to the above LLM analysis for suggestions and risk notes.",
+        SECTION_KEY_RISK: "Historical pattern similarity does not guarantee future repetition and does not constitute investment advice.",
     }
-    # 全文以 LLM 输出为主（已合并多余空行）
-    full_text = "【K线形态与未来走势分析报告】\n\n" + llm_text_clean
-    if similar_cases:
-        full_text += "\n\n--- 相似历史案例（供参考） ---\n" + sec_similar
+    # Full report is primarily the LLM output (with collapsed newlines)
+    full_text = "【K-line pattern and future trend analysis report】\n\n" + llm_text_clean
 
     report: ReportStructured = {
         "sections": sections,

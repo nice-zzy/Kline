@@ -17,7 +17,9 @@ function SimilarCasesBlock({ cases }: { cases: SimilarCase[] }) {
   if (!cases?.length) return null;
   return (
     <div className="reportSimilarCases">
-      <div className="reportSimilarCasesTitle">相似历史 K 线（当前 + 往后两窗口，供参考）</div>
+      <div className="reportSimilarCasesTitle">
+        Similar historical windows (current + next two, for reference)
+      </div>
       <div className="reportSimilarCasesGrid">
         {cases.map((c) => (
           <figure key={c.rank} className="reportSimilarCaseItem">
@@ -25,16 +27,16 @@ function SimilarCasesBlock({ cases }: { cases: SimilarCase[] }) {
               {c.image_base64 ? (
                 <img
                   src={`data:image/png;base64,${c.image_base64}`}
-                  alt="当前"
+                  alt="Current window"
                   className="reportSimilarCaseImage"
                 />
               ) : (
-                <div className="reportSimilarCasePlaceholder">暂无</div>
+                <div className="reportSimilarCasePlaceholder">N/A</div>
               )}
               {c.image_next1_base64 ? (
                 <img
                   src={`data:image/png;base64,${c.image_next1_base64}`}
-                  alt="后续1"
+                  alt="Next window 1"
                   className="reportSimilarCaseImage"
                 />
               ) : (
@@ -43,7 +45,7 @@ function SimilarCasesBlock({ cases }: { cases: SimilarCase[] }) {
               {c.image_next2_base64 ? (
                 <img
                   src={`data:image/png;base64,${c.image_next2_base64}`}
-                  alt="后续2"
+                  alt="Next window 2"
                   className="reportSimilarCaseImage"
                 />
               ) : (
@@ -53,7 +55,9 @@ function SimilarCasesBlock({ cases }: { cases: SimilarCase[] }) {
             <figcaption className="reportSimilarCaseCaption">
               {[c.symbol, c.start_date, c.end_date].filter(Boolean).join(" · ")}
               {c.symbol || c.start_date || c.end_date ? " " : ""}
-              <span className="reportSimilarCaseSim">相似度 {(c.similarity * 100).toFixed(1)}%</span>
+              <span className="reportSimilarCaseSim">
+                Similarity {(c.similarity * 100).toFixed(1)}%
+              </span>
             </figcaption>
           </figure>
         ))}
@@ -75,17 +79,17 @@ export function ChatMessages({
       {successBanner && (
         <div className="successBanner" role="status">
           <span className="successIcon">✓</span>
-          分析报告已生成！
+          Analysis report generated!
         </div>
       )}
 
       {messages.length === 0 && !loading && (
         <div className="welcome">
-          <p>请输入股票 OHLC 数据，或上传 K 线图进行分析</p>
+          <p>Please enter stock OHLC data, or upload a candlestick chart for analysis.</p>
           <p className="welcomeHint">
-            格式示例：股票代码, 日期, 开盘, 最高, 最低, 收盘, 成交量（每行一条）
+            Example format: symbol, date, open, high, low, close, volume (one row per bar)
           </p>
-          <p className="welcomeHint">或上传 PNG/JPG 格式的 K 线图</p>
+          <p className="welcomeHint">Or upload a candlestick image in PNG/JPG format.</p>
         </div>
       )}
 
@@ -93,7 +97,7 @@ export function ChatMessages({
         <div key={msg.id} className={`messageRow ${msg.role}`}>
           <div className={`bubble ${msg.role}`}>
             {msg.type === "image" && msg.imageUrl && (
-              <img src={msg.imageUrl} alt="上传" className="bubbleImage" />
+              <img src={msg.imageUrl} alt="Uploaded chart" className="bubbleImage" />
             )}
             <div className="bubbleContent">
               {msg.role === "assistant" ? (
@@ -125,14 +129,6 @@ export function ChatMessages({
           </div>
         </div>
       ))}
-
-      {loading && (
-        <div className="messageRow assistant">
-          <div className="bubble assistant">
-            <div className="bubbleContent">正在生成分析报告…</div>
-          </div>
-        </div>
-      )}
 
       {error && <div className="errorBar">{error}</div>}
 

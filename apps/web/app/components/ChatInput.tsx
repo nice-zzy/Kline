@@ -55,7 +55,7 @@ export function ChatInput({
         )}
         <textarea
           className="inputText"
-          placeholder="请输入股票 OHLC 数据，或上传 K 线图进行分析"
+          placeholder="Enter stock OHLC data, or upload a candlestick chart for analysis."
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           onKeyDown={(e) => {
@@ -76,10 +76,10 @@ export function ChatInput({
               onChange={onFileChange}
             />
             <span className="uploadIcon">↑</span>
-            <span className="uploadLabel">上传 K 线图 (PNG/JPG)</span>
+            <span className="uploadLabel">Upload K-line chart (PNG/JPG)</span>
           </label>
           <button type="submit" className="submitBtn" disabled={loading}>
-            {loading ? "分析中…" : "发送"}
+            {loading ? "Analyzing…" : "Send"}
           </button>
         </div>
       </form>

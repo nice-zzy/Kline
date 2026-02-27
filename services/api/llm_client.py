@@ -1,8 +1,8 @@
 """
-大模型 API 调用实现（本文件即「API 调用代码」所在位置）。
+LLM API client implementation.
 
-- 优先从同目录下的 llm_config.json 读取 base_url、api_key、model；若无该文件或字段为空则用环境变量。
-- 配置项（JSON）：base_url, api_key, model, timeout（秒）；环境变量：KLINE_LLM_*、KLINE_LLM_TIMEOUT
+- Prefer reading base_url, api_key, model, timeout from llm_config.json in this directory.
+- If that file or fields are missing, fall back to environment variables: KLINE_LLM_*, KLINE_LLM_TIMEOUT.
 """
 import os
 import json
@@ -49,7 +49,7 @@ LLM_MAX_TOKENS = int(os.environ.get("KLINE_LLM_MAX_TOKENS") or "4096")
 
 
 def is_configured() -> bool:
-    """是否已配置可用的 LLM API。"""
+    """Return True if a usable LLM API is configured."""
     return bool(LLM_API_BASE and LLM_API_KEY)
 
 
@@ -62,15 +62,25 @@ def call_chat(
     timeout: Optional[int] = None,
 ) -> str:
     """
-    调用 OpenAI 兼容的 chat/completions 接口。
-    messages: [ {"role": "system"|"user"|"assistant", "content": "..." 或 [{"type":"text","text":"..."},{"type":"image_url","image_url":{"url":"data:image/png;base64,..."}}] }, ... ]
-    返回 assistant 的 content 文本；失败抛异常或返回错误信息。
+    Call an OpenAI-compatible chat/completions endpoint.
+    messages: [
+      {
+        "role": "system" | "user" | "assistant",
+        "content": "..." or
+          [
+            {"type": "text", "text": "..."},
+            {"type": "image_url", "image_url": {"url": "data:image/png;base64,..."}}
+          ]
+      },
+      ...
+    ]
+    Returns the assistant's content text; raises exceptions on failure.
     """
     try:
         import urllib.request
         import ssl
     except ImportError:
-        raise RuntimeError("需要 Python 标准库 urllib.request")
+        raise RuntimeError("Python standard library urllib.request is required.")
 
     url = f"{LLM_API_BASE}/chat/completions"
     payload = {
@@ -102,26 +112,26 @@ def call_chat(
             msg = err_obj.get("error", {}).get("message", body)
         except Exception:
             msg = body
-        raise RuntimeError(f"LLM API 请求失败 ({e.code}): {msg}")
+        raise RuntimeError(f"LLM API request failed ({e.code}): {msg}")
     except Exception as e:
-        raise RuntimeError(f"LLM API 请求异常: {e}") from e
+        raise RuntimeError(f"LLM API request error: {e}") from e
 
     body_stripped = (body or "").strip()
     if not body_stripped:
-        raise RuntimeError("LLM API 返回空响应，请检查 base_url 与网络或服务端是否正常")
+        raise RuntimeError("LLM API returned an empty response. Please check base_url, network, and server status.")
 
     try:
         out = json.loads(body_stripped)
     except json.JSONDecodeError as e:
         preview = body_stripped[:500] if len(body_stripped) > 500 else body_stripped
         raise RuntimeError(
-            f"LLM API 返回非 JSON（Expecting value）。可能原因：接口地址错误、返回了 HTML/错误页。响应预览: {preview!r}"
+            f"LLM API returned non-JSON data (Expecting value). The endpoint may be incorrect or returned HTML / an error page. Preview: {preview!r}"
         ) from e
 
     choices = out.get("choices") or []
     if not choices:
-        raise RuntimeError("LLM API 返回无 choices")
+        raise RuntimeError("LLM API returned no choices.")
     content = (choices[0].get("message") or {}).get("content")
     if content is None:
-        raise RuntimeError("LLM API 返回无 content")
+        raise RuntimeError("LLM API returned no content.")
     return content.strip()

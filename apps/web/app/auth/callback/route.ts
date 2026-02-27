@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     }
     console.error("OAuth callback error:", error);
     return NextResponse.redirect(
-      `${origin}/?message=认证失败: ${encodeURIComponent(error.message)}`
+      `${origin}/?message=Authentication failed: ${encodeURIComponent(error.message)}`
     );
   }
   return NextResponse.redirect(`${origin}/`);

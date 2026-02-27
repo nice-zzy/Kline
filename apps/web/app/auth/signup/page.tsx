@@ -27,7 +27,7 @@ export default function SignupPage() {
       await signUp(email.trim(), password);
       router.replace("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "注册失败");
+      setError(err instanceof Error ? err.message : "Sign up failed.");
     } finally {
       setSubmitting(false);
     }
@@ -46,11 +46,11 @@ export default function SignupPage() {
   return (
     <div className="authPage">
       <div className="authCard">
-        <h1 className="authTitle">注册</h1>
-        <p className="authSubtitle">注册后对话将同步到云端</p>
+        <h1 className="authTitle">Sign up</h1>
+        <p className="authSubtitle">Create an account to sync your chats to the cloud.</p>
         <form onSubmit={handleSubmit} className="authForm">
           <label className="authLabel">
-            邮箱
+            Email
             <input
               type="email"
               value={email}
@@ -62,13 +62,13 @@ export default function SignupPage() {
             />
           </label>
           <label className="authLabel">
-            密码
+            Password
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="authInput"
-              placeholder="至少 6 位"
+              placeholder="At least 6 characters"
               required
               minLength={6}
               autoComplete="new-password"
@@ -76,11 +76,11 @@ export default function SignupPage() {
           </label>
           {error && <p className="authError">{error}</p>}
           <button type="submit" className="authSubmit" disabled={submitting}>
-            {submitting ? "注册中…" : "注册"}
+            {submitting ? "Signing up…" : "Sign up"}
           </button>
         </form>
         <p className="authFooter">
-          已有账号？ <Link href="/auth/login">登录</Link>
+          Already have an account? <Link href="/auth/login">Log in</Link>
         </p>
       </div>
     </div>

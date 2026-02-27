@@ -3,7 +3,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata = {
   title: "K-line Analyst",
-  description: "输入 OHLC 数据或上传 K 线图，获取分析报告。",
+  description: "Enter OHLC data or upload a candlestick chart to get an analysis report.",
 };
 
 export default function RootLayout({
@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="zh-CN">
+    <html lang="en">
       <body>
         <AuthProvider>{children}</AuthProvider>
       </body>

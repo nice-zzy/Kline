@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   try {
     const user = await requireAuth();
     const body = await req.json().catch(() => ({}));
-    const title = typeof body.title === "string" ? body.title.trim() || "新对话" : "新对话";
+    const title = typeof body.title === "string" ? body.title.trim() || "New chat" : "New chat";
     const chatService = getChatService();
     const chat = await chatService.createChat(user.id, title);
     return NextResponse.json(chat, { status: 201 });

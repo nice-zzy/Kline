@@ -28,12 +28,12 @@ export default function LoginPage() {
       await Promise.race([
         signIn(email.trim(), password),
         new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error("连接超时，请检查网络或使用可访问国际网络的代理后重试")), timeoutMs)
+          setTimeout(() => reject(new Error("Connection timed out. Please check your network or try with a VPN that can access international services.")), timeoutMs)
         ),
       ]);
       router.replace("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "登录失败");
+      setError(err instanceof Error ? err.message : "Login failed.");
     } finally {
       setSubmitting(false);
     }
@@ -52,12 +52,12 @@ export default function LoginPage() {
   return (
     <div className="authPage">
       <div className="authCard">
-        <h1 className="authTitle">登录</h1>
-        <p className="authSubtitle">登录后对话将同步到云端</p>
-        <p className="authHint">若长时间无响应，可能是无法连接 Supabase，请检查网络或使用可访问国际网络的代理。</p>
+        <h1 className="authTitle">Log in</h1>
+        <p className="authSubtitle">Sign in to sync your chats to the cloud.</p>
+        <p className="authHint">If there is no response for a long time, you may be unable to reach Supabase. Please check your network or use a VPN that can access international services.</p>
         <form onSubmit={handleSubmit} className="authForm">
           <label className="authLabel">
-            邮箱
+            Email
             <input
               type="email"
               value={email}
@@ -69,7 +69,7 @@ export default function LoginPage() {
             />
           </label>
           <label className="authLabel">
-            密码
+            Password
             <input
               type="password"
               value={password}
@@ -82,11 +82,11 @@ export default function LoginPage() {
           </label>
           {error && <p className="authError">{error}</p>}
           <button type="submit" className="authSubmit" disabled={submitting}>
-            {submitting ? "登录中…" : "登录"}
+            {submitting ? "Signing in…" : "Log in"}
           </button>
         </form>
         <p className="authFooter">
-          还没有账号？ <Link href="/auth/signup">注册</Link>
+          Don&apos;t have an account? <Link href="/auth/signup">Sign up</Link>
         </p>
       </div>
     </div>
