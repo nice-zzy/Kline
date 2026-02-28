@@ -1,6 +1,7 @@
 <p align="center">
   <img src="docs/logo.png" alt="FINALOGY" width="196" />
 </p>
+
 # FINALOGY: A Vision-Language System for Candlestick Pattern Analogy
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
